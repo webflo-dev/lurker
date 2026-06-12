@@ -66,10 +66,19 @@ type ctxKey int
 
 const sessionKey ctxKey = 0
 
+// localSession is the synthetic identity shared by all visitors when
+// OIDC is disabled.
+var localSession = &session.Session{Sub: "local", Name: "local user", Local: true}
+
 // auth redirects anonymous visitors to the login page and stores the
-// session in the request context otherwise.
+// session in the request context otherwise. With OIDC disabled it lets
+// everyone through as a shared local user.
 func (s *Server) auth(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if s.cfg.OIDC.Disabled {
+			next(w, r.WithContext(context.WithValue(r.Context(), sessionKey, localSession)))
+			return
+		}
 		sess := s.sessions.Get(r)
 		if sess == nil {
 			target := "/login"

@@ -27,16 +27,26 @@ Everything is configured through environment variables:
 | `LURKER_BASE_URL` | recommended | `http://localhost:<port>` | Public URL of the instance; used for the OIDC redirect URI and secure cookies |
 | `LURKER_DB_PATH` | no | `./lurker.db` | Path of the bbolt database file |
 | `LURKER_SESSION_SECRET` | recommended | random | Secret (≥ 32 chars) signing session cookies; without it sessions reset on restart |
-| `LURKER_OIDC_ISSUER` | **yes** | — | OIDC issuer URL, e.g. `https://auth.example.com/realms/main` |
-| `LURKER_OIDC_CLIENT_ID` | **yes** | — | OIDC client ID |
-| `LURKER_OIDC_CLIENT_SECRET` | **yes** | — | OIDC client secret (confidential client) |
+| `LURKER_OIDC_DISABLED` | no | `false` | Disable authentication entirely (see below) |
+| `LURKER_OIDC_ISSUER` | **yes*** | — | OIDC issuer URL, e.g. `https://auth.example.com/realms/main` |
+| `LURKER_OIDC_CLIENT_ID` | **yes*** | — | OIDC client ID |
+| `LURKER_OIDC_CLIENT_SECRET` | **yes*** | — | OIDC client secret (confidential client) |
 | `LURKER_OIDC_SCOPES` | no | `openid profile email` | Space-separated scopes |
 | `LURKER_USER_AGENT` | no | built-in | User-Agent sent to the Reddit API |
+
+\* not required when `LURKER_OIDC_DISABLED=true`.
 
 In your identity provider, register a confidential client with the
 redirect URI `<LURKER_BASE_URL>/oidc/callback`. ID tokens signed with
 RS256 or ES256 are supported, and provider metadata is discovered from
 `<issuer>/.well-known/openid-configuration`.
+
+### Running without authentication
+
+Set `LURKER_OIDC_DISABLED=true` to turn authentication off: no login
+page, and every visitor browses (and shares subscriptions) as a single
+local user. Only do this for personal/local instances or behind another
+authentication layer such as a VPN or an authenticating reverse proxy.
 
 ## Running
 

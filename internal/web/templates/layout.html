@@ -14,7 +14,7 @@
     <nav>
       <a href="/subs">subs</a>
       <a href="/search">search</a>
-      <a href="/logout" title="signed in as {{.User.Name}}">logout</a>
+      {{if not .User.Local}}<a href="/logout" title="signed in as {{.User.Name}}">logout</a>{{end}}
     </nav>
     {{end}}
   </header>

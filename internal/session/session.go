@@ -28,6 +28,9 @@ type Session struct {
 	Name string `json:"name"`
 	// Expiry is a unix timestamp after which the session is invalid.
 	Expiry int64 `json:"exp"`
+	// Local marks the synthetic session injected when OIDC is disabled;
+	// it never goes through a cookie, hence excluded from encoding.
+	Local bool `json:"-"`
 }
 
 // Manager signs and verifies cookie payloads.

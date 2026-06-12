@@ -49,7 +49,7 @@ type app struct {
 	idp    *oidctest.Server
 }
 
-func newTestApp(t *testing.T) *app {
+func newTestApp(t *testing.T, opts ...func(*config.Config)) *app {
 	t.Helper()
 
 	idp := oidctest.New("lurker", "s3cret")
@@ -91,6 +91,9 @@ func newTestApp(t *testing.T) *app {
 			ClientSecret: "s3cret",
 			Scopes:       []string{"openid", "profile", "email"},
 		},
+	}
+	for _, opt := range opts {
+		opt(cfg)
 	}
 
 	st, err := store.Open(cfg.DBPath)
@@ -239,6 +242,39 @@ func TestOpenRedirectBlocked(t *testing.T) {
 	defer resp.Body.Close()
 	if got := resp.Request.URL.Host; !strings.Contains(a.url, got) {
 		t.Fatalf("redirected off-site to %q", resp.Request.URL)
+	}
+}
+
+func TestOIDCDisabled(t *testing.T) {
+	a := newTestApp(t, func(cfg *config.Config) {
+		cfg.OIDC = config.OIDC{Disabled: true}
+	})
+
+	// No login required: / goes straight to the feed.
+	status, body := a.get(t, "/")
+	if status != http.StatusOK || !strings.Contains(body, "Go 1.24 released") {
+		t.Fatalf("expected feed without login, got status=%d body=%.300s", status, body)
+	}
+	if strings.Contains(body, "/logout") {
+		t.Error("logout link should be hidden when OIDC is disabled")
+	}
+
+	// Subscriptions work under the shared local user.
+	status, body = a.post(t, "/subscribe", url.Values{"subreddit": {"golang"}, "next": {"/subs"}})
+	if status != http.StatusOK || !strings.Contains(body, `href="/r/golang"`) {
+		t.Fatalf("subscribe failed: status=%d body=%.300s", status, body)
+	}
+
+	// Auth pages collapse to the home page.
+	for _, path := range []string{"/login", "/oidc/login", "/oidc/callback", "/logout"} {
+		resp, err := a.client.Get(a.url + path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.Request.URL.Path == path {
+			t.Errorf("%s should redirect away when OIDC is disabled", path)
+		}
 	}
 }
 

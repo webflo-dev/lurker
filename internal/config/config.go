@@ -34,6 +34,11 @@ type Config struct {
 
 // OIDC holds the OpenID Connect client settings.
 type OIDC struct {
+	// Disabled turns authentication off entirely: every visitor browses
+	// as a single shared local user and the other OIDC settings are
+	// ignored. LURKER_OIDC_DISABLED. Only use this for local setups or
+	// behind another authentication layer.
+	Disabled bool
 	// Issuer URL, e.g. https://auth.example.com/realms/main.
 	// Discovery is performed at <issuer>/.well-known/openid-configuration.
 	Issuer       string
@@ -98,8 +103,19 @@ func FromEnv() (*Config, error) {
 		ClientSecret: os.Getenv("LURKER_OIDC_CLIENT_SECRET"),
 		Scopes:       []string{"openid", "profile", "email"},
 	}
+	if v := os.Getenv("LURKER_OIDC_DISABLED"); v != "" {
+		disabled, err := strconv.ParseBool(v)
+		if err != nil {
+			return nil, fmt.Errorf("LURKER_OIDC_DISABLED: invalid boolean %q", v)
+		}
+		cfg.OIDC.Disabled = disabled
+	}
 	if v := os.Getenv("LURKER_OIDC_SCOPES"); v != "" {
 		cfg.OIDC.Scopes = strings.Fields(v)
+	}
+	if cfg.OIDC.Disabled {
+		slog.Warn("LURKER_OIDC_DISABLED is set: authentication is off, everyone can use this instance")
+		return cfg, nil
 	}
 	for name, v := range map[string]string{
 		"LURKER_OIDC_ISSUER":    cfg.OIDC.Issuer,

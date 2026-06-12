@@ -272,7 +272,7 @@ type loginData struct {
 }
 
 func (s *Server) login(w http.ResponseWriter, r *http.Request) {
-	if s.sessions.Get(r) != nil {
+	if s.cfg.OIDC.Disabled || s.sessions.Get(r) != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
@@ -293,6 +293,10 @@ type oidcState struct {
 const oidcCookie = "lurker_oidc"
 
 func (s *Server) oidcLogin(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.OIDC.Disabled {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	st := oidcState{
 		State: randomToken(),
 		Nonce: randomToken(),
@@ -311,6 +315,10 @@ func (s *Server) oidcLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) oidcCallback(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.OIDC.Disabled {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	var st oidcState
 	if err := s.sessions.PopTemp(w, r, oidcCookie, &st); err != nil {
 		s.renderError(w, r, http.StatusBadRequest, fmt.Errorf("login session expired, please retry"))
@@ -340,6 +348,10 @@ func (s *Server) oidcCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) logout(w http.ResponseWriter, r *http.Request) {
+	if s.cfg.OIDC.Disabled {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	s.sessions.Clear(w)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
