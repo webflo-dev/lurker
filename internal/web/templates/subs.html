@@ -1,0 +1,25 @@
+{{define "content"}}
+<h1>subscriptions</h1>
+{{if .Subs}}
+<ul class="subs-list">
+  {{range .Subs}}
+  <li>
+    <a href="/r/{{.}}">r/{{.}}</a>
+    <form method="post" action="/unsubscribe">
+      <input type="hidden" name="subreddit" value="{{.}}">
+      <input type="hidden" name="next" value="/subs">
+      <button type="submit" class="link-button">unsubscribe</button>
+    </form>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="meta">no subscriptions yet — try <a href="/sub-search">searching for subreddits</a>.</p>
+{{end}}
+
+<form class="inline-form" method="post" action="/subscribe">
+  <input type="hidden" name="next" value="/subs">
+  <input type="text" name="subreddit" placeholder="subreddit name" required>
+  <button type="submit">subscribe</button>
+</form>
+{{end}}

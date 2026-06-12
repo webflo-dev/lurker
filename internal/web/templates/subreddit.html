@@ -1,0 +1,46 @@
+{{define "content"}}
+<section class="sub-header">
+  <div>
+    <h1>r/{{.Subreddit}}</h1>
+    {{with .About}}
+    <p class="meta">{{.Title}} · {{num .Subscribers}} subscribers</p>
+    {{end}}
+  </div>
+  {{if .CanSubscribe}}
+  <form method="post" action="{{if .Subscribed}}/unsubscribe{{else}}/subscribe{{end}}">
+    <input type="hidden" name="subreddit" value="{{.Subreddit}}">
+    <input type="hidden" name="next" value="{{.CurrentURL}}">
+    <button type="submit">{{if .Subscribed}}unsubscribe{{else}}subscribe{{end}}</button>
+  </form>
+  {{end}}
+</section>
+
+<nav class="sorts">
+  <a {{if eq .Sort "hot"}}class="active"{{end}} href="/r/{{.Subreddit}}">hot</a>
+  <a {{if eq .Sort "new"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort=new">new</a>
+  <a {{if eq .Sort "top"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort=top&t=day">top</a>
+  <a {{if eq .Sort "rising"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort=rising">rising</a>
+  <a {{if eq .Sort "controversial"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort=controversial&t=day">controversial</a>
+</nav>
+
+{{if .T}}
+<nav class="sorts times">
+  <a {{if eq .T "hour"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=hour">hour</a>
+  <a {{if eq .T "day"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=day">day</a>
+  <a {{if eq .T "week"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=week">week</a>
+  <a {{if eq .T "month"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=month">month</a>
+  <a {{if eq .T "year"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=year">year</a>
+  <a {{if eq .T "all"}}class="active"{{end}} href="/r/{{.Subreddit}}?sort={{.Sort}}&t=all">all</a>
+</nav>
+{{end}}
+
+<section class="posts">
+  {{range .Listing.Posts}}{{template "post" .}}{{else}}
+  <p class="meta">nothing here.</p>
+  {{end}}
+</section>
+
+{{with .NextURL}}
+<nav class="pagination"><a href="{{.}}">more →</a></nav>
+{{end}}
+{{end}}

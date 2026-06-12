@@ -1,0 +1,27 @@
+{{define "post"}}
+<article class="post{{if .Stickied}} stickied{{end}}">
+  {{if .HasThumbnail}}
+  <a class="thumb" href="{{postLink .}}">
+    <img src="{{.Thumbnail}}" alt="" loading="lazy"{{if or .Over18 .Spoiler}} class="blur"{{end}}>
+  </a>
+  {{else}}
+  <a class="thumb placeholder" href="{{postLink .}}">{{if .IsSelf}}¶{{else}}↗{{end}}</a>
+  {{end}}
+  <div class="post-body">
+    <h2><a href="{{postLink .}}">{{.Title}}</a></h2>
+    <p class="meta">
+      <span class="score">{{num .Score}} points</span>
+      · <a href="/r/{{.Subreddit}}">r/{{.Subreddit}}</a>
+      · u/{{.Author}}
+      · {{ago .CreatedUTC}}
+      {{if .Over18}}<span class="tag nsfw">nsfw</span>{{end}}
+      {{if .Spoiler}}<span class="tag">spoiler</span>{{end}}
+      {{with .LinkFlairText}}<span class="tag">{{.}}</span>{{end}}
+    </p>
+    <p class="meta">
+      <a href="/comments/{{.ID}}">{{.NumComments}} comments</a>
+      {{if not .IsSelf}} · <a href="{{.URL}}" rel="noreferrer">{{.Domain}}</a>{{end}}
+    </p>
+  </div>
+</article>
+{{end}}

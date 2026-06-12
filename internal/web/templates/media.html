@@ -1,0 +1,10 @@
+{{define "content"}}
+<section class="media-view">
+  {{if .IsVideo}}
+  <video controls autoplay src="{{.URL}}"></video>
+  {{else}}
+  <img src="{{.URL}}" alt="">
+  {{end}}
+  <p class="meta"><a href="{{.URL}}" rel="noreferrer">open original</a></p>
+</section>
+{{end}}

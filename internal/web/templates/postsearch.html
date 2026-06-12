@@ -1,0 +1,19 @@
+{{define "content"}}
+<h1>post search</h1>
+<form class="inline-form" method="get" action="/post-search">
+  <input type="text" name="q" value="{{.Query}}" placeholder="search posts" required>
+  <button type="submit">search</button>
+</form>
+
+{{with .Listing}}
+<section class="posts">
+  {{range .Posts}}{{template "post" .}}{{else}}
+  <p class="meta">no results.</p>
+  {{end}}
+</section>
+{{end}}
+
+{{with .NextURL}}
+<nav class="pagination"><a href="{{.}}">more →</a></nav>
+{{end}}
+{{end}}

@@ -1,0 +1,30 @@
+{{define "content"}}
+<h1>subreddit search</h1>
+<form class="inline-form" method="get" action="/sub-search">
+  <input type="text" name="q" value="{{.Query}}" placeholder="search subreddits" required>
+  <button type="submit">search</button>
+</form>
+
+{{if .Query}}
+<ul class="sub-results">
+  {{$subscribed := .Subscribed}}
+  {{range .Results}}
+  <li>
+    <div>
+      <a href="/r/{{.DisplayName}}">r/{{.DisplayName}}</a>
+      <span class="meta">{{num .Subscribers}} subscribers{{if .Over18}} · <span class="tag nsfw">nsfw</span>{{end}}</span>
+      {{with .PublicDescription}}<p class="meta">{{.}}</p>{{end}}
+    </div>
+    {{$name := .DisplayName}}
+    <form method="post" action="{{if index $subscribed $name}}/unsubscribe{{else}}/subscribe{{end}}">
+      <input type="hidden" name="subreddit" value="{{$name}}">
+      <input type="hidden" name="next" value="/sub-search?q={{$.Query}}">
+      <button type="submit">{{if index $subscribed $name}}unsubscribe{{else}}subscribe{{end}}</button>
+    </form>
+  </li>
+  {{else}}
+  <li class="meta">no results.</li>
+  {{end}}
+</ul>
+{{end}}
+{{end}}

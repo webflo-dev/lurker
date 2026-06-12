@@ -1,0 +1,11 @@
+{{define "content"}}
+<h1>search</h1>
+<form class="inline-form" method="get" action="/post-search">
+  <input type="text" name="q" placeholder="search posts" required>
+  <button type="submit">search posts</button>
+</form>
+<form class="inline-form" method="get" action="/sub-search">
+  <input type="text" name="q" placeholder="search subreddits" required>
+  <button type="submit">search subreddits</button>
+</form>
+{{end}}

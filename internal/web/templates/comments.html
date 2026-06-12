@@ -1,0 +1,27 @@
+{{define "content"}}
+<article class="post-full">
+  <h1><a href="{{postLink .Post}}">{{.Post.Title}}</a></h1>
+  <p class="meta">
+    {{num .Post.Score}} points
+    · <a href="/r/{{.Post.Subreddit}}">r/{{.Post.Subreddit}}</a>
+    · u/{{.Post.Author}}
+    · {{ago .Post.CreatedUTC}}
+    · {{.Post.NumComments}} comments
+    {{if not .Post.IsSelf}} · <a href="{{.Post.URL}}" rel="noreferrer">{{.Post.Domain}}</a>{{end}}
+    {{if .Post.Over18}}<span class="tag nsfw">nsfw</span>{{end}}
+  </p>
+  {{with .Post.SelftextHTML}}
+  <div class="usertext">{{raw .}}</div>
+  {{end}}
+</article>
+
+{{with .ThreadRoot}}
+<p class="thread-note">viewing a single comment thread — <a href="{{.}}">view the full discussion</a></p>
+{{end}}
+
+<section class="comments">
+  {{range .Comments}}{{template "comment" .}}{{else}}
+  <p class="meta">no comments yet.</p>
+  {{end}}
+</section>
+{{end}}

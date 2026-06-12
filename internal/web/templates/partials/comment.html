@@ -1,0 +1,26 @@
+{{define "comment"}}
+{{if .More}}
+<p class="more-comments">
+  <a href="/comments/{{.PostID}}/comment/{{.ParentCommentID}}">
+    {{if gt .Count 0}}{{.Count}} more {{if eq .Count 1}}reply{{else}}replies{{end}}{{else}}continue this thread{{end}} →
+  </a>
+</p>
+{{else}}
+<details class="comment" open id="c-{{.ID}}">
+  <summary>
+    <span class="author{{if .IsSubmitter}} op{{end}}{{if .Distinguished}} distinguished{{end}}">u/{{.Author}}</span>
+    <span class="meta">
+      {{if .ScoreHidden}}score hidden{{else}}{{num .Score}} points{{end}}
+      · {{ago .CreatedUTC}}
+      {{if .Stickied}}· <span class="tag">pinned</span>{{end}}
+    </span>
+  </summary>
+  <div class="usertext">{{raw .BodyHTML}}</div>
+  {{with .Replies}}
+  <div class="replies">
+    {{range .}}{{template "comment" .}}{{end}}
+  </div>
+  {{end}}
+</details>
+{{end}}
+{{end}}
