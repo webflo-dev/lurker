@@ -40,10 +40,13 @@ func run() error {
 	}
 	defer st.Close()
 
+	rd := reddit.NewClient(cfg.UserAgent)
+	rd.BaseURL = cfg.RedditURL
+
 	srv, err := web.New(
 		cfg,
 		st,
-		reddit.NewClient(cfg.UserAgent),
+		rd,
 		session.NewManager(cfg.SessionSecret, cfg.CookiesSecure()),
 		oidc.New(cfg.OIDC.Issuer, cfg.OIDC.ClientID, cfg.OIDC.ClientSecret),
 	)

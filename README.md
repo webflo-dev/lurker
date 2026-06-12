@@ -32,7 +32,8 @@ Everything is configured through environment variables:
 | `LURKER_OIDC_CLIENT_ID` | **yes*** | — | OIDC client ID |
 | `LURKER_OIDC_CLIENT_SECRET` | **yes*** | — | OIDC client secret (confidential client) |
 | `LURKER_OIDC_SCOPES` | no | `openid profile email` | Space-separated scopes |
-| `LURKER_USER_AGENT` | no | built-in | User-Agent sent to the Reddit API |
+| `LURKER_USER_AGENT` | no | Chrome-like | User-Agent sent to the Reddit API |
+| `LURKER_REDDIT_URL` | no | `https://www.reddit.com` | Base URL of the Reddit JSON API (mirror or proxy) |
 
 \* not required when `LURKER_OIDC_DISABLED=true`.
 
@@ -74,6 +75,15 @@ docker run -p 3000:3000 -v lurker-data:/data \
 ```
 
 The image runs as a non-root user and stores its database in `/data`.
+
+## Troubleshooting
+
+**`reddit: … returned 403 Forbidden`** — Reddit's CDN refuses clients
+it doesn't recognize as browsers, and blocks many datacenter/VPN IP
+ranges outright. lurker already sends browser-like headers; if you
+still get 403s, try a different `LURKER_USER_AGENT` (copy your
+browser's exact string), or host the instance on an IP Reddit accepts,
+or point `LURKER_REDDIT_URL` at a proxy/mirror you trust.
 
 ## Development
 

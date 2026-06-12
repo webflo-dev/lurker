@@ -271,8 +271,14 @@ func (c *Client) get(ctx context.Context, path string, query url.Values, out any
 	if err != nil {
 		return err
 	}
+	// Reddit's CDN rejects requests that don't look like they come from
+	// a browser, so mimic one beyond the User-Agent alone.
 	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	req.Header.Set("Sec-Fetch-Dest", "document")
+	req.Header.Set("Sec-Fetch-Mode", "navigate")
+	req.Header.Set("Sec-Fetch-Site", "none")
 
 	resp, err := c.HTTP.Do(req)
 	if err != nil {

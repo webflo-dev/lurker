@@ -28,6 +28,10 @@ type Config struct {
 	SessionSecret []byte
 	// UserAgent sent to the Reddit API. LURKER_USER_AGENT.
 	UserAgent string
+	// RedditURL is the base URL of the Reddit JSON API; point it at a
+	// mirror or proxy if reddit.com rejects your server's requests.
+	// LURKER_REDDIT_URL, default https://www.reddit.com.
+	RedditURL string
 
 	OIDC OIDC
 }
@@ -47,7 +51,9 @@ type OIDC struct {
 	Scopes       []string
 }
 
-const defaultUserAgent = "Mozilla/5.0 (X11; Linux x86_64) lurker/1.0 (self-hosted reddit reader)"
+// defaultUserAgent mimics a real browser: Reddit's CDN answers 403 to
+// clients it does not recognize as one.
+const defaultUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
 // FromEnv builds a Config from the process environment, returning an
 // error describing the first invalid or missing required variable.
@@ -56,6 +62,7 @@ func FromEnv() (*Config, error) {
 		Port:      3000,
 		DBPath:    "lurker.db",
 		UserAgent: defaultUserAgent,
+		RedditURL: "https://www.reddit.com",
 	}
 
 	if v := os.Getenv("LURKER_PORT"); v != "" {
@@ -71,6 +78,13 @@ func FromEnv() (*Config, error) {
 	}
 	if v := os.Getenv("LURKER_USER_AGENT"); v != "" {
 		cfg.UserAgent = v
+	}
+	if v := os.Getenv("LURKER_REDDIT_URL"); v != "" {
+		u, err := url.Parse(v)
+		if err != nil || u.Scheme == "" || u.Host == "" {
+			return nil, fmt.Errorf("LURKER_REDDIT_URL: invalid URL %q", v)
+		}
+		cfg.RedditURL = strings.TrimRight(v, "/")
 	}
 
 	base := os.Getenv("LURKER_BASE_URL")
